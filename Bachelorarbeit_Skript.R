@@ -4,14 +4,14 @@
 # nötige Packete laden
 library(readxl)
 library(writexl)
-library(tidyverse)
+library(tidyverse)    
 library(BatchGetSymbols)
 library(plyr)
+library(lubridate)
 
 # datan laden
 
 initial_data <- read_xlsx("Transfermodul_Datensatz.xlsx")
-founding_data <- read_xlsx("Abfrage_Gründungsdatum.xlsx", sheet = 2)
 founding_data <- read_csv("fouding_data.csv")
 
 
@@ -52,6 +52,8 @@ orderd_data <- clean_data[order(clean_data$`Issue Date`),]
 orderd_data$`Issue Date` <-as.Date(as.POSIXct(orderd_data$`Issue Date`, 'GMT'))
 orderd_data$founding_date <- as.Date(as.POSIXct(order_data$founding_date, 'GMT'))
 
-orderd_data$dummy <- ifelse(orderd_data$`Issue Date` < as.Date("24/02/2020", format = "%d/%M/%Y") &
-                              orderd_data$`Issue Date` < as.Date("23/02/2020", format = "%d/%M/%Y"), 1, 0)
+orderd_data$dummy <- ifelse(orderd_data$`Issue Date` < as.Date("24/02/2020", format = "%d/%m/%Y") &
+                              orderd_data$`Issue Date` < as.Date("23/02/2020", format = "%d/%m/%Y"), 1, 0)
+
+
 table(orderd_data$dummy)
