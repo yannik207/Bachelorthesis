@@ -52,8 +52,30 @@ orderd_data <- clean_data[order(clean_data$`Issue Date`),]
 orderd_data$`Issue Date` <-as.Date(as.POSIXct(orderd_data$`Issue Date`, 'GMT'))
 orderd_data$founding_date <- as.Date(as.POSIXct(order_data$founding_date, 'GMT'))
 
-orderd_data$dummy <- ifelse(orderd_data$`Issue Date` < as.Date("24/02/2020", format = "%d/%m/%Y") &
+orderd_data$dummyCOVID <- ifelse(orderd_data$`Issue Date` < as.Date("24/02/2020", format = "%d/%m/%Y") &
                               orderd_data$`Issue Date` < as.Date("23/02/2020", format = "%d/%m/%Y"), 1, 0)
 
 
 table(orderd_data$dummy)
+
+orderd_data$founding_date <- as.Date(orderd_data$founding_date)
+orderd_data$age <- round(((orderd_data$`Issue Date`-orderd_data$founding_date) / 365),2)
+
+orderd_data$age[orderd_data$age < 1] <- mean(orderd_data$age)
+
+aged_data <- na.omit(orderd_data)
+
+hightechsic <- c("Software", "Integrated Telecommunications Services", "Communications Equipment", "Computer Hardware", "Electrical Components & Equipment", "Consumer Electronics", "Electric Utilities", "IT Services & Consulting", "Aerospace & Defense", "Biotechnology & Medical Research", )
+
+orderd_data$hightech_dummy<- ifelse(orderd_data$`Issuer TRBC Industry` %in% hightechsic , 1, 0)
+
+europe <- c("Germany", "France", "Belgium", "Spain")
+
+
+orderd_data$dummynation <- ifelse(orderd_data$`Issuer Nation` %in% europe, 1,0)
+
+final <- orderd_data[c(2, 5, 10, 13, 14, 15, 16)]
+
+
+
+
