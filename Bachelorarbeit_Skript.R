@@ -8,6 +8,8 @@ library(tidyverse)
 library(BatchGetSymbols)
 library(plyr)
 library(lubridate)
+library(corrplot)
+library(RColorBrewer)
 
 # datan laden
 
@@ -65,7 +67,7 @@ orderd_data$age[orderd_data$age < 1] <- mean(orderd_data$age)
 
 aged_data <- na.omit(orderd_data)
 
-hightechsic <- c("Software", "Integrated Telecommunications Services", "Communications Equipment", "Computer Hardware", "Electrical Components & Equipment", "Consumer Electronics", "Electric Utilities", "IT Services & Consulting", "Aerospace & Defense", "Biotechnology & Medical Research", )
+hightechsic <- c("Software", "Integrated Telecommunications Services", "Communications Equipment", "Computer Hardware", "Electrical Components & Equipment", "Consumer Electronics", "Electric Utilities", "IT Services & Consulting", "Aerospace & Defense", "Biotechnology & Medical Research")
 
 orderd_data$hightech_dummy<- ifelse(orderd_data$`Issuer TRBC Industry` %in% hightechsic , 1, 0)
 
@@ -74,8 +76,12 @@ europe <- c("Germany", "France", "Belgium", "Spain")
 
 orderd_data$dummynation <- ifelse(orderd_data$`Issuer Nation` %in% europe, 1,0)
 
-final <- orderd_data[c(2, 5, 10, 13, 14, 15, 16)]
+final <- orderd_data[c(2, 10, 13, 14, 15, 16)]
 
+final$age <- as.numeric(final$age)
+M <-cor(final)
+corrplot(M, type="upper", order="hclust",
+         col=brewer.pal(n=8, name="RdYlBu"))
 
-
-
+Model <- lm(final$Underpricing ~ final$`Gross Proceeds Inc. Overallotment Exercised` + final$age + final$hightech_dummy + final$dummynation + final$dummyCOVID, data = final)
+summary(Model)
