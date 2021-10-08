@@ -11,6 +11,8 @@ library(lubridate)
 library(corrplot)
 library(RColorBrewer)
 library(xlsx)
+library(caret)
+library(MASS)
 
 # datan laden
 
@@ -122,21 +124,33 @@ non_hightech_data <- final_right %>% filter(hightech_dummy == 0)
 # test wether the underpricing in hightech industries is higher than in non hightech industries
 t.test(hightech_data$Underpricing, non_hightech_data$Underpricing, alternative = "greater")
 
-names <- c("dummyCOVID", "hightech_dummy", "dummynation")
-final_right[,names] <- lapply(final_right[,names], factor)
+
 
 # Model
 M <-cor(final_right)
-M
+round(M,3)
+
+names <- c("dummyCOVID", "hightech_dummy", "dummynation")
+final_right[,names] <- lapply(final_right[,names], factor)
+
+
 corrplot(M, type="upper", order="hclust",
          col=brewer.pal(n=8, name="RdYlBu"))
 
 Model <- lm(final_right$Underpricing ~ final_right$IPO_Erlös + final_right$hightech_dummy + final_right$dummynation + final_right$dummyCOVID, data = final)
 summary(Model)
 
+#checking for multicollinearity
+car::vif(Model)
 
+plot(final_right$Underpricing, rstandard(Model), ylab='Standardized Residuals', xlab='y') 
+abline(h=0)
 
+robust_Model <- rlm(final_right$Underpricing ~ final_right$IPO_Erlös + final_right$hightech_dummy + final_right$dummynation + final_right$dummyCOVID, data = final)
 
+summary(robust_Model)$sigma
+
+summary(Model)$sigma
 
 
 
