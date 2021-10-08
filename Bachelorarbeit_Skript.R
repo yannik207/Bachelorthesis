@@ -85,18 +85,9 @@ orderd_data$dummynation <- ifelse(orderd_data$`Issuer Nation` %in% europe, 1,0)
 
 # section 2 describing statistics
 final <- orderd_data[c(2, 10, 12, 14, 15)]
-# how many companies are in US and Europa
-final %>% group_by(dummynation) %>% summarise(count = count(dummynation))
 
-# how is the underpricing difference in europa and usa
-final %>% filter(dummynation == 0) %>% summarise(mean = mean(Underpricing))
-final %>% filter(dummynation == 1) %>% summarise(mean = mean(Underpricing))
-
-
-
-# how is the underpricing during covid-19
-final %>% filter(dummyCOVID == 0) %>% summarise(mean = mean(Underpricing))
 final %>% filter(dummyCOVID == 1) %>% summarise(mean = mean(Underpricing))
+final %>% filter(dummyCOVID == 0) %>% summarise(mean = mean(Underpricing))
 
 # can't find a significant difference between before and during COVID-19
 # therefor I change the covid timeline and just the time between stock drop and stock recovery
@@ -106,19 +97,41 @@ data_wo_covid <- orderd_data %>% select(Underpricing, `Issue Date`) %>% filter(`
 
 t.test(data_w_covid$Underpricing, data_wo_covid$Underpricing, alternative = "greater")
 
+# afterwards i cleaned up the whole dataset and startet at the beginning with new dummyvariables for the orderd dataset, but did most of it in excel
+write_xlsx(orderd_data, "/Users/yanniksa/Desktop/Uni/QM2/Bachelorthesis/orderd_data.xlsx")
+ordered_data_right <- read_xlsx("orderd_data.xlsx")
+
+final_right <- ordered_data[c(2, 10, 12, 14, 15)]
+
+
+# how many companies are in US and Europa
+final_right %>% group_by(dummynation) %>% summarise(count = count(dummynation))
+
+# how is the underpricing difference in europa and usa
+nation_eu <- final_right %>% filter(dummynation == 1) 
+nation_usa <- final_right %>% filter(dummynation == 0) 
+
+# test wether the difference between eu and usa is significant
+
+t.test(nation_usa$Underpricing, nation_eu$Underpricing)
 # how is the underpricing in hightech industries
 
-final %>% filter(hightech_dummy == 0) %>% summarise(mean = mean(Underpricing))
-final %>% filter(hightech_dummy == 1) %>% summarise(mean = mean(Underpricing))
+hightech_data <- final_right %>% filter(hightech_dummy == 1) 
+non_hightech_data <- final_right %>% filter(hightech_dummy == 0)
 
+# test wether the underpricing in hightech industries is higher than in non hightech industries
+t.test(hightech_data$Underpricing, non_hightech_data$Underpricing, alternative = "greater")
+
+names <- c("dummyCOVID", "hightech_dummy", "dummynation")
+final_right[,names] <- lapply(final_right[,names], factor)
 
 # Model
-M <-cor(final)
+M <-cor(final_right)
 M
 corrplot(M, type="upper", order="hclust",
          col=brewer.pal(n=8, name="RdYlBu"))
 
-Model <- lm(final$Underpricing ~ final$`Gross Proceeds Inc. Overallotment Exercised` + final$age + final$hightech_dummy + final$dummynation + final$dummyCOVID, data = final)
+Model <- lm(final_right$Underpricing ~ final_right$IPO_Erlös + final_right$hightech_dummy + final_right$dummynation + final_right$dummyCOVID, data = final)
 summary(Model)
 
 
