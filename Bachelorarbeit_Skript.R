@@ -64,20 +64,11 @@ orderd_data$dummyCOVID <- ifelse(orderd_data$`Issue Date` < as.Date("24/02/2020"
 
 table(orderd_data$dummy)
 
-orderd_data$founding_date <- as.Date(orderd_data$founding_date)
-orderd_data$age <- round(((orderd_data$`Issue Date`-orderd_data$founding_date) / 365),2)
 
-# for the age i need a subsample
-subsample <- orderd_data
-
-subsample$age[subsample$age < 1] <- NA
-
-subsample <- na.omit(subsample)
 
 hightechsic <- c("Software", "Integrated Telecommunications Services", "Communications Equipment", "Computer Hardware", "Electrical Components & Equipment", "Consumer Electronics", "Electric Utilities", "IT Services & Consulting", "Aerospace & Defense", "Biotechnology & Medical Research")
 
 orderd_data$hightech_dummy<- ifelse(orderd_data$`Issuer TRBC Industry` %in% hightechsic , 1, 0)
-subsample$hightech_dummy<- ifelse(subsample$`Issuer TRBC Industry` %in% hightechsic , 1, 0)
 
 
 europe <- c("Germany", "France", "Belgium", "Spain")
@@ -99,12 +90,27 @@ data_wo_covid <- orderd_data %>% select(Underpricing, `Issue Date`) %>% filter(`
 
 t.test(data_w_covid$Underpricing, data_wo_covid$Underpricing, alternative = "greater")
 
+
+orderd_data$founding_date <- as.Date(orderd_data$founding_date)
+orderd_data$age <- round(((orderd_data$`Issue Date`-orderd_data$founding_date) / 365),2)
+
+# for the age i need a subsample
+subsample <- orderd_data
+
+subsample$age[subsample$age < 1] <- NA
+
+subsample <- na.omit(subsample)
+
 # afterwards i cleaned up the whole dataset and startet at the beginning with new dummyvariables for the orderd dataset, but did most of it in excel
+
 write_xlsx(orderd_data, "/Users/yanniksa/Desktop/Uni/QM2/Bachelorthesis/orderd_data.xlsx")
-ordered_data_right <- read_xlsx("orderd_data.xlsx")
+write_xlsx(subsample, "/Users/yanniksa/Desktop/Uni/QM2/Bachelorthesis/subsample.xlsx")
+#ordered_data_right <- read_xlsx("orderd_data.xlsx")
+subsample_right <- read_xlsx("subsample.xlsx")
 
-final_right <- ordered_data[c(2, 10, 12, 14, 15)]
 
+final_right <- ordered_data_right[c(2, 10, 12, 14, 15)]
+subsample_right <- subsample_right[c(2, 10, 12, 13, 14, 15)]
 
 # how many companies are in US and Europa
 final_right %>% group_by(dummynation) %>% summarise(count = count(dummynation))
@@ -130,18 +136,25 @@ t.test(hightech_data$Underpricing, non_hightech_data$Underpricing, alternative =
 M <-cor(final_right)
 round(M,3)
 
+# Model for subsample
+M_age <- cor(subsample_right, method = "spearman")
+round(M_age,3)
+
 names <- c("dummyCOVID", "hightech_dummy", "dummynation")
 final_right[,names] <- lapply(final_right[,names], factor)
-
+subsample_right[,names] <- lapply(subsample_right[,names], factor)
 
 corrplot(M, type="upper", order="hclust",
          col=brewer.pal(n=8, name="RdYlBu"))
 
-Model <- lm(final_right$Underpricing ~ final_right$IPO_Erlös + final_right$hightech_dummy + final_right$dummynation + final_right$dummyCOVID, data = final)
+Model <- lm(final_right$Underpricing ~ final_right$IPO_Erlös + final_right$hightech_dummy + final_right$dummynation + final_right$dummyCOVID, data = final_right)
 summary(Model)
 
+Model_age <- lm(subsample_right$Underpricing ~ subsample_right$IPO_Erlös + subsample_right$dummyCOVID + subsample_right$age + subsample_right$hightech_dummy + subsample_right$dummynation, data = subsample_right)
+summary(Model_age)
 #checking for multicollinearity
 car::vif(Model)
+car::vif(Model_age)
 
 plot(final_right$Underpricing, rstandard(Model), ylab='Standardized Residuals', xlab='y') 
 abline(h=0)
