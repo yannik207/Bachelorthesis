@@ -13,6 +13,7 @@ library(RColorBrewer)
 library(xlsx)
 library(caret)
 library(MASS)
+library(lubridate)
 
 # datan laden
 
@@ -108,6 +109,10 @@ write_xlsx(subsample, "/Users/yanniksa/Desktop/Uni/QM2/Bachelorthesis/subsample.
 #ordered_data_right <- read_xlsx("orderd_data.xlsx")
 subsample_right <- read_xlsx("subsample.xlsx")
 
+# how underpricing evolved over the time
+underpricing_year <- ordered_data_right %>% summarise_by_time(.date_var = `Issue Date`, .by = "year", mean = mean(Underpricing))
+
+plot(x = underpricing_year$`Issue Date`, y = underpricing_year$mean, type = "l", main = "IPO Underpricing Zeitreihe", ylab = "Underpricing in %", xlab = "Jahr")
 
 final_right <- ordered_data_right[c(2, 10, 12, 14, 15)]
 subsample_right <- subsample_right[c(2, 10, 12, 13, 14, 15)]
