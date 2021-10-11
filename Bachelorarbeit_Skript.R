@@ -69,7 +69,8 @@ round(prop.table(table(ordered_data$dummyCOVID, ordered_data$`Issuer Primary SIC
 chisq.test(ordered_data$dummyCOVID, ordered_data$`Issuer TRBC Industry`)
 fisher.test(ordered_data$dummyCOVID, ordered_data$`Issuer TRBC Industry`, simulate.p.value=TRUE)
 
-dtable(orderd_data$dummy)
+
+
 
 
 hightechsic <- c("Software", "Integrated Telecommunications Services", "Communications Equipment", "Computer Hardware", "Electrical Components & Equipment", "Consumer Electronics", "Electric Utilities", "IT Services & Consulting", "Aerospace & Defense", "Biotechnology & Medical Research")
@@ -90,9 +91,9 @@ final %>% filter(dummyCOVID == 0) %>% summarise(mean = mean(Underpricing))
 
 # can't find a significant difference between before and during COVID-19
 # therefor I change the covid timeline and just the time between stock drop and stock recovery
-data_w_covid <- orderd_data %>% select(Underpricing, `Issue Date`) %>% filter(`Issue Date` > "2020-02-24", `Issue Date` < "2020-07-30")
+data_w_covid <- orderd_data %>% select(Underpricing, `Issue Date`, `Issuer TRBC Industry`) %>% filter(`Issue Date` > "2020-02-24", `Issue Date` < "2020-07-30")
 
-data_wo_covid <- orderd_data %>% select(Underpricing, `Issue Date`) %>% filter(`Issue Date` < "2020-02-24" | `Issue Date` > "2020-07-30") 
+data_wo_covid <- orderd_data %>% select(Underpricing, `Issue Date`, `Issuer TRBC Industry`) %>% filter(`Issue Date` < "2020-02-24" | `Issue Date` > "2020-07-30") 
 
 t.test(data_w_covid$Underpricing, data_wo_covid$Underpricing, alternative = "greater")
 
