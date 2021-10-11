@@ -63,8 +63,13 @@ orderd_data$dummyCOVID <- ifelse(orderd_data$`Issue Date` < as.Date("24/02/2020"
                               orderd_data$`Issue Date` < as.Date("23/02/2020", format = "%d/%m/%Y"), 1, 0)
 
 
-table(orderd_data$dummy)
+# Are the variables covid and industry independent? or de wa have a change in the industry that went public over the time?
+table(ordered_data$dummyCOVID , ordered_data$`Issuer Primary SIC`)
+round(prop.table(table(ordered_data$dummyCOVID, ordered_data$`Issuer Primary SIC`)),4)
+chisq.test(ordered_data$dummyCOVID, ordered_data$`Issuer TRBC Industry`)
+fisher.test(ordered_data$dummyCOVID, ordered_data$`Issuer TRBC Industry`, simulate.p.value=TRUE)
 
+dtable(orderd_data$dummy)
 
 
 hightechsic <- c("Software", "Integrated Telecommunications Services", "Communications Equipment", "Computer Hardware", "Electrical Components & Equipment", "Consumer Electronics", "Electric Utilities", "IT Services & Consulting", "Aerospace & Defense", "Biotechnology & Medical Research")
@@ -92,6 +97,8 @@ data_wo_covid <- orderd_data %>% select(Underpricing, `Issue Date`) %>% filter(`
 t.test(data_w_covid$Underpricing, data_wo_covid$Underpricing, alternative = "greater")
 
 
+
+
 orderd_data$founding_date <- as.Date(orderd_data$founding_date)
 orderd_data$age <- round(((orderd_data$`Issue Date`-orderd_data$founding_date) / 365),2)
 
@@ -108,6 +115,13 @@ write_xlsx(orderd_data, "/Users/yanniksa/Desktop/Uni/QM2/Bachelorthesis/orderd_d
 write_xlsx(subsample, "/Users/yanniksa/Desktop/Uni/QM2/Bachelorthesis/subsample.xlsx")
 #ordered_data_right <- read_xlsx("orderd_data.xlsx")
 subsample_right <- read_xlsx("subsample.xlsx")
+
+
+
+chisq.test(ordered_data_right$dummyCOVID, ordered_data_right$`Issuer TRBC Industry`)
+fisher.test(ordered_data_right$dummyCOVID, ordered_data_right$`Issuer TRBC Industry`, simulate.p.value=TRUE)
+
+
 
 # how underpricing evolved over the time
 underpricing_year <- ordered_data_right %>% summarise_by_time(.date_var = `Issue Date`, .by = "year", mean = mean(Underpricing))
@@ -135,6 +149,17 @@ non_hightech_data <- final_right %>% filter(hightech_dummy == 0)
 # test wether the underpricing in hightech industries is higher than in non hightech industries
 t.test(hightech_data$Underpricing, non_hightech_data$Underpricing, alternative = "greater")
 
+# mean , max, min and boxplot underpricing
+mean(final_right$Underpricing)
+median(final_right$Underpricing)
+boxplot(final_right$Underpricing, main = "Underpricing", ylab = "in %")
+quantile(final_right$Underpricing)
+min(final_right$Underpricing)
+max(final_right$Underpricing)
+# count hightech companies
+sum(final_right$hightech_dummy)
+sum(final_right$dummyCOVID)
+sum(final_right$dummynation)
 
 
 # Model
