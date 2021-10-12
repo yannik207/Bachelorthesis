@@ -178,8 +178,20 @@ subsample_right[,names] <- lapply(subsample_right[,names], factor)
 corrplot(M, type="upper", order="hclust",
          col=brewer.pal(n=8, name="RdYlBu"))
 
+
 Model <- lm(final_right$Underpricing ~ final_right$IPO_Erlös + final_right$hightech_dummy + final_right$dummynation + final_right$dummyCOVID, data = final_right)
 summary(Model)
+
+plot(Model, 4)
+cd <- cooks.distance(Model)
+
+
+#testing wether model works better without observations 905, 1093 and 1088
+final_right_905 <- final_right[c(-905, -1093, -1088),]
+
+Model_905 <- lm(final_right_905$Underpricing ~ final_right_905$IPO_Erlös + final_right_905$hightech_dummy + final_right_905$dummynation + final_right_905$dummyCOVID, data = final_right_905)
+summary(Model_905)
+
 
 Model_age <- lm(subsample_right$Underpricing ~ subsample_right$IPO_Erlös + subsample_right$dummyCOVID + subsample_right$age + subsample_right$hightech_dummy + subsample_right$dummynation, data = subsample_right)
 summary(Model_age)
