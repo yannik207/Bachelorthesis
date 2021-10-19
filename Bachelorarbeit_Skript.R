@@ -193,6 +193,18 @@ industry_df$`Issuer TRBC Industry`[industry_df$`Issuer TRBC Industry` %in% c("Re
                                                                              "Airlines")] <- "andere"
 unique(industry_df$`Issuer TRBC Industry`)
 
+
+industry_df %>% filter(`Issuer TRBC Industry` == "Finanzen") %>% summarise(mean = mean(Underpricing))
+industry_df %>% filter(`Issuer TRBC Industry` == "Medizin") %>% summarise(mean = mean(Underpricing))
+industry_df %>% filter(`Issuer TRBC Industry` == "andere") %>% summarise(mean = mean(Underpricing))
+industry_df %>% filter(`Issuer TRBC Industry` == "Materialien") %>% summarise(mean = mean(Underpricing))
+industry_df %>% filter(`Issuer TRBC Industry` == "Konsum") %>% summarise(mean = mean(Underpricing))
+industry_df %>% filter(`Issuer TRBC Industry` == "Einzelhandel") %>% summarise(mean = mean(Underpricing))
+industry_df %>% filter(`Issuer TRBC Industry` == "Service") %>% summarise(mean = mean(Underpricing))
+industry_df %>% filter(`Issuer TRBC Industry` == "Energie") %>% summarise(mean = mean(Underpricing))
+industry_df %>% filter(`Issuer TRBC Industry` == "Maschinen") %>% summarise(mean = mean(Underpricing))
+industry_df %>% filter(`Issuer TRBC Industry` == "hightech") %>% summarise(mean = mean(Underpricing))
+
 industry_2016 <- industry_df %>% filter(`Issue Date` > "2016-01-13", `Issue Date` < "2016-12-30")
 industry_2017 <- industry_df %>% filter(`Issue Date` > "2017-01-01", `Issue Date` < "2017-12-30")
 industry_2018 <- industry_df %>% filter(`Issue Date` > "2018-01-01", `Issue Date` < "2018-12-30")
