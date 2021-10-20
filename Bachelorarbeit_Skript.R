@@ -336,37 +336,20 @@ Model_905 <- lm(final_right_905$Underpricing ~ final_right_905$IPO_Erlös + fina
 summary(Model_905)
 
 
-# compare usa and eu
-final_right_eu <- final_right_905 %>% filter(dummynation == 1)
-
-final_right_usa <- final_right_905 %>% filter(dummynation == 0)
-
-final_right_eu <- final_right_eu[,-5]
-
-final_right_usa <- final_right_usa[,-5]
-
-Model_eu <- lm(final_right_eu$Underpricing ~ final_right_eu$IPO_Erlös + final_right_eu$dummyCOVID + final_right_eu$hightech_dummy, data = final_right_eu)
-
-summary(Model_eu)
-
-Model_usa <- lm(final_right_usa$Underpricing ~ final_right_usa$IPO_Erlös + final_right_usa$dummyCOVID + final_right_usa$hightech_dummy, data = final_right_usa)
-
-summary(Model_usa)
-
 Model_age <- lm(subsample_right$Underpricing ~ subsample_right$IPO_Erlös + subsample_right$dummyCOVID + subsample_right$age + subsample_right$hightech_dummy + subsample_right$dummynation, data = subsample_right)
 summary(Model_age)
 #checking for multicollinearity
-car::vif(Model)
-car::vif(Model_age)
+
 
 plot(final_right$Underpricing, rstandard(Model), ylab='Standardized Residuals', xlab='y') 
 abline(h=0)
 
-robust_Model <- rlm(final_right$Underpricing ~ final_right$IPO_Erlös + final_right$hightech_dummy + final_right$dummynation + final_right$dummyCOVID, data = final)
 
-summary(robust_Model)$sigma
+final_model <- final_right_905[-1300:-1439,]
+final_test <- final_right_905[1300:1439,]
 
-summary(Model)$sigma
+Model_Model <- lm(final_model$Underpricing ~ final_model$IPO_Erlös + final_model$dummyCOVID + final_model$hightech_dummy + final_model$dummynation, data = final_model)
 
+pred <- exp(predict(Model_Model, newdata = final_test))
 
-
+final_test$Underpricing - pred
