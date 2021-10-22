@@ -351,5 +351,6 @@ final_test <- final_right_905[1300:1439,]
 Model_Model <- lm(final_model$Underpricing ~ final_model$IPO_Erlös + final_model$dummyCOVID + final_model$hightech_dummy + final_model$dummynation, data = final_model)
 
 pred <- exp(predict(Model_Model, newdata = final_test))
+mean(pred)
 
 final_test$Underpricing - pred
